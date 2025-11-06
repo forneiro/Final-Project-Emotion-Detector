@@ -9,13 +9,16 @@ def emotion_detector(text_to_analyse):
     # Make the request
     response = requests.post(url, json=myobj, headers=headers)
 
-    # Find the highest score
-    if response.status_code != 200:
-        return {"error": f"Request failed with status {response.status_code}"}
-
+    
     formatted_response = json.loads(response.text)
     emotions = formatted_response['emotionPredictions'][0]['emotion']
 
+    if response.status_code == 400:
+        output['dominant_emotion'] = None
+        for emotion, score in emotions.items():
+            output[emotion] = None
+        return emotions
+    # Find the highest score
     output = {}
     max_score = -1
     for emotion, score in emotions.items():
